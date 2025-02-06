@@ -1,0 +1,16 @@
+conda_sh_directory: /opt/conda/base/etc/profile.d/conda.sh
+
+sre_agent_directory: roles/sre_agent/lumyn
+sre_agent_evaluation_directory: roles/sre_agent/evaluations
+
+sre_agent_name__version_number: "lumyn-0.0.1"
+
+sre_agent_max_runtime_in_seconds: 900 # in seconds
+
+llm_model_name: "gpt-4o-2024-08-06"
+llm_base_url: "https://api.openai.com/v1"
+llm_api_key: ""
+llm_temperature: 0.0
+
+grafana_url: ""
+grafana_service_account_token: "NO_LONGER_NEEDED_TO_BE_SET"

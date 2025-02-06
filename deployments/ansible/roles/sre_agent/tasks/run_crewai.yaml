@@ -1,0 +1,184 @@
+---
+- name: Make sure Lumyn / SRE-Agent directory exists - 1 
+  ansible.builtin.stat:
+    path: "{{ sre_agent_directory }}"
+  register: status_of_agent_directory 
+  tags:
+    - sre_agent
+
+- name:  Tasks associated with leveraging ingress
+  ansible.builtin.include_tasks:
+    file: leverage_ingress.yaml
+    apply:
+      tags:
+        - sre_agent
+  tags:
+    - sre_agent
+
+- name:  Tasks associated with leveraging port forwarding
+  ansible.builtin.include_tasks:
+    file: leverage_port_forwarding.yaml
+    apply:
+      tags:
+        - sre_agent
+  tags:
+    - sre_agent
+
+- name: Create placeholder directory for outputs
+  ansible.builtin.file:
+    path: "/runner/outputs"
+    state: directory
+  tags:
+    - sre_agent
+
+- name: (Hack) Kubeconfig path inside AWX-EE container
+  ansible.builtin.shell: find /runner/env -type f -size +3072c
+  register: kubeconfig_path_inside_ee
+  tags:
+    - sre_agent
+
+- name: CrewAI Prerequisite -- set .env prior to CrewAI run
+  debug:
+    msg: |-
+      LLM_MODEL_NAME="{{ llm_model_name }}"
+      LLM_API_KEY="{{ llm_api_key }}" # pragma: allowlist secret
+      LLM_BASE_URL="{{ llm_base_url }}"
+      IS_AZURE="{{ is_azure if is_azure is defined else 'False' }}"
+      IS_WATSONX="{{ is_watsonx if is_watsonx is defined else 'False' }}"
+      GOD_MODE="{{ enable_god_mode if enable_god_mode is defined else 'False' }}"
+      LLM_PROJECT_ID="{{ llm_project_id if llm_project_id is defined else '' }}"
+      LLM_TEMPERATURE="{{ llm_temperature if llm_temperature is defined else '0.0' }}"
+      LLM_SEED="{{ llm_seed if llm_seed is defined else '42' }}"
+      LLM_TOP_P="{{ llm_top_p if llm_top_p is defined else '0.0000001' }}"
+      LLM_API_VERSION="{{ llm_api_version if llm_api_version is defined else '2024-09-01-preview' }}"
+      LLM_CONFIGURATION_PARAMETERS='{{ llm_configuration_parameters | to_json | safe if llm_configuration_parameters is defined else {}}}'
+      KUBECONFIG="{{ kubeconfig_path_inside_ee.stdout }}"
+      GRAFANA_URL="{{ grafana_url }}"
+      TOPOLOGY_URL="{{ topology_url }}"
+      GRAFANA_SERVICE_ACCOUNT_TOKEN="{{ grafana_service_account_token }}"
+      STRUCTURED_UNSTRUCTURED_OUTPUT_DIRECTORY_PATH="/runner/outputs"
+  register: content_for_env
+  tags:
+    - sre_agent
+
+- name: Copy env content to .env file
+  ansible.builtin.copy:
+    content: "{{ content_for_env.msg }}"
+    dest: "{{ sre_agent_directory }}/.env"
+  tags:
+    - sre_agent
+
+- name: Experiment-related metadata
+  debug:
+    msg: |-
+      RUN_UUID="{{ run_uuid }}"
+      SCENARIO_NUMBER="{{ scenario_number }}"
+      LLM_MODEL_NAME="{{ llm_model_name }}"
+      LLM_BASE_URL="{{ llm_base_url }}"
+      IS_AZURE="{{ is_azure if is_azure is defined else 'False' }}"
+      IS_WATSONX="{{ is_watsonx if is_watsonx is defined else 'False' }}"
+      GOD_MODE="{{ enable_god_mode if enable_god_mode is defined else 'False' }}"
+      LLM_PROJECT_ID="{{ llm_project_id if llm_project_id is defined else '' }}"
+      LLM_TEMPERATURE="{{ llm_temperature if llm_temperature is defined else '0.0' }}"
+      LLM_SEED="{{ llm_seed if llm_seed is defined else '42' }}"
+      LLM_TOP_P="{{ llm_top_p if llm_top_p is defined else '0.0000001' }}"
+      LLM_API_VERSION="{{ llm_api_version if llm_api_version is defined else '2024-09-01-preview' }}"
+      LLM_CONFIGURATION_PARAMETERS='{{ llm_configuration_parameters | to_json | safe if llm_configuration_parameters is defined else {}}}'
+      KUBECONFIG="{{ kubeconfig_path_inside_ee.stdout }}"
+      GRAFANA_URL="{{ grafana_url }}"
+      TOPOLOGY_URL="{{ topology_url }}"
+  register: content_for_metadata
+  tags:
+    - sre_agent
+  when: run_uuid is defined and scenario_number is defined and run_number is defined
+
+- name: Copy metadata content to file
+  ansible.builtin.copy:
+    content: "{{ content_for_metadata.msg }}"
+    dest: "{{ sre_agent_directory }}/metadata"
+  tags:
+    - sre_agent
+
+- name: Copy metadata content to file
+  ansible.builtin.copy:
+    content: "{{ content_for_metadata.msg }}"
+    dest: "/runner/outputs/metadata"
+  tags:
+    - sre_agent
+
+- name: Upload metadata to S3 (parent)
+  amazon.aws.s3_object:
+    endpoint_url: "https://s3.us-east-2.amazonaws.com"
+    bucket: "awx-evaluations"
+    object: "/{{ sre_agent_name__version_number }}/{{run_uuid}}/{{ scenario_number }}/metadata"
+    src: "{{ sre_agent_directory }}/metadata"
+    mode: put
+  tags:
+    - sre_agent
+  when: run_uuid is defined and scenario_number is defined and run_number is defined
+
+- name: Upload metadata to S3 (child)
+  amazon.aws.s3_object:
+    endpoint_url: "https://s3.us-east-2.amazonaws.com"
+    bucket: "awx-evaluations"
+    object: "/{{ sre_agent_name__version_number }}/{{run_uuid}}/{{scenario_number}}/{{run_number}}/metadata"
+    src: "{{ sre_agent_directory }}/metadata"
+    mode: put
+  tags:
+    - sre_agent
+  when: run_uuid is defined and scenario_number is defined and run_number is defined
+
+- name: Make sure directory to write the evaluations exists
+  ansible.builtin.file:
+    path: "{{ sre_agent_evaluation_directory }}/{{ sre_agent_name__version_number }}"
+    state: directory
+  tags:
+    - sre_agent
+
+- name: Create temporary file
+  ansible.builtin.tempfile:
+    state: file
+    suffix: temp
+  register: tempfile_for_crewai_run
+  tags:
+    - sre_agent
+
+- name: Run CrewAI and log to file
+  ansible.builtin.shell: "source {{ conda_sh_directory }} && conda activate {{ conda_env_directory }} && cd {{ sre_agent_directory }} && crewai run >> {{ tempfile_for_crewai_run.path }}"
+  async: "{{ sre_agent_max_runtime_in_seconds }}"
+  poll: 15
+  ignore_errors: yes
+  tags:
+    - sre_agent
+
+- name: Copy output to local file
+  copy:
+    src: "{{ tempfile_for_crewai_run.path }}"
+    dest: "/runner/outputs/agent_logs_{{ now(utc=true,fmt='%Y-%m-%dT%H:%M:%S.%f') }}.txt"
+  tags:
+    - sre_agent
+
+- name: Record agent run or execution time completion
+  ansible.builtin.copy:
+    content: "{{ now(utc=true,fmt='%Y-%m-%dT%H:%M:%S.%f') }}"
+    dest: /runner/outputs/agent_execution_completed_or_exited_at.txt
+  tags:
+    - sre_agent
+
+- name: Upload structured-unstructured outputs to S3
+  community.aws.s3_sync:
+    bucket: "awx-evaluations"
+    file_root: "/runner/outputs"
+    key_prefix: "{{ sre_agent_name__version_number }}/{{run_uuid}}/{{scenario_number}}/{{run_number}}/outputs"
+    region: "us-east-2"
+  tags:
+    - sre_agent
+  when: run_uuid is defined and scenario_number is defined and run_number is defined
+
+- name: Remove the temporary file
+  ansible.builtin.file:
+    path: "{{ tempfile_for_crewai_run.path }}"
+    state: absent
+  when: tempfile_for_crewai_run.path is defined
+  tags:
+    - sre_agent
