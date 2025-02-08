@@ -6,7 +6,7 @@ The agent should always be run in a container in order to prevent harmful comman
 
 1. Clone the repo
 ```
-git clone git@github.ibm.com:DistributedCloudResearch/lumyn.git
+git clone git@github.com:IBM/itbench-sre-agent.git
 cd lumyn
 ```
 
@@ -41,7 +41,7 @@ Pre-built images coming soon.
 # Development Setup Instructions
 1. Clone the repo
 ```
-git clone git@github.ibm.com:DistributedCloudResearch/lumyn.git
+git clone git@github.com:IBM/itbench-sre-agent.git
 cd lumyn
 ```
 
