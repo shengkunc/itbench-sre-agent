@@ -7,7 +7,7 @@ The agent should always be run in a container in order to prevent harmful comman
 1. Clone the repo
 ```
 git clone git@github.com:IBM/itbench-sre-agent.git
-cd lumyn
+cd itbench-sre-agent
 ```
 
 2. Create a `.env` based on `.env.tmpl` by running:
@@ -19,17 +19,17 @@ Update the values here to switch LLM backends. Currently supported backends are 
 3. Build the image.
 ```
 # Docker
-docker build -t lumyn .
+docker build -t itbench-sre-agent .
 # Podman
-podman build -t lumyn .
+podman build -t itbench-sre-agent .
 ```
 
 4. Run the image in interactive mode:
 ```
 # Docker
-docker run -it lumyn /bin/bash
+docker run -it itbench-sre-agent /bin/bash
 # Podman
-podman run -it lumyn /bin/bash
+podman run -it itbench-sre-agent /bin/bash
 ```
 5. Start the agent:
 ```
@@ -42,7 +42,7 @@ Pre-built images coming soon.
 1. Clone the repo
 ```
 git clone git@github.com:IBM/itbench-sre-agent.git
-cd lumyn
+cd itbench-sre-agent
 ```
 
 2. Ensure you have Python 3.12 installed. This project uses [uv](https://docs.astral.sh/uv/) for dependency management.
