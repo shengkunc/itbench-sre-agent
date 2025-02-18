@@ -56,7 +56,7 @@ source crew_env/bin/activate
 crew_env\Scripts\activate
 
 pip install uv
-pip install crewai==0.95.0
+pip install crewai
 pip install crewai-tools
 ```
 3. Navigate to the root project directory and install the dependencies using the CLI command:
