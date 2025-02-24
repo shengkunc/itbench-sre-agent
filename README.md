@@ -27,9 +27,9 @@ podman build -t itbench-sre-agent .
 4. Run the image in interactive mode:
 ```
 # Docker
-docker run -it itbench-sre-agent /bin/bash
+docker run -it --user root itbench-sre-agent /bin/bash
 # Podman
-podman run -it itbench-sre-agent /bin/bash
+podman run -it --user root itbench-sre-agent /bin/bash
 ```
 5. Start the agent:
 ```
