@@ -11,7 +11,7 @@ RUN mkdir -p /app/itbench-sre-agent && \
     chmod -R g=u /app
 
 RUN pip install --no-cache-dir uv
-RUN pip install --no-cache-dir crewai==0.95.0
+RUN pip install --no-cache-dir crewai
 RUN pip install --no-cache-dir crewai-tools
 RUN crewai install
 
