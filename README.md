@@ -14,7 +14,7 @@ cd itbench-sre-agent
 ```
 cp .env.tmpl .env
 ```
-Update the values here to switch LLM backends. Currently supported backends are watsonx.ai or Azure. Also update the values at the bottom so the agent can interact with your cluster. Remember that if you are using a local cluster you can access your PC http://localhost:3000 by using http://host.docker.internal:3000 (docker) or http://host.containers.internal:3000 (podman).
+Update the values here to switch LLM backends. Currently supported backends are watsonx.ai or Azure. Also update the values at the bottom so the agent can interact with your cluster. Remember that if you are using a local cluster you can access your PC http://localhost:port by using http://host.docker.internal:port (docker) or http://host.containers.internal:port (podman).
 
 3. Build the image.
 ```
@@ -30,6 +30,10 @@ podman build -t itbench-sre-agent .
 docker run -it itbench-sre-agent /bin/bash
 # Podman
 podman run -it itbench-sre-agent /bin/bash
+
+# FOR LINUX ONLY
+If you are running the agent on the same machine as the bench then you need to run portforwarding on the bench (kubectl port-forward svc/ingress-nginx-controller -n ingress-nginx 8080:80)
+and then run the agent image with --network=host (docker run --network=host -it itbench-sre-agent /bin/bash) and then for the grafana url use http://localhost:8080/prometheus.
 ```
 5. Start the agent:
 ```
