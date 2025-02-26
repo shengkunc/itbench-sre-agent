@@ -1,4 +1,4 @@
-# Setup a remote or local cluster
+# Setup a remote or local cluster to run the ITBench
 Clone and follow the instructions in [this repo](https://github.com/IBM/it-bench-sample-scenarios/tree/main/sre). Setup a cluster, deploy the observability stack and a sample application, then inject a fault.
 
 # Running with Docker/Podman
@@ -14,7 +14,7 @@ cd itbench-sre-agent
 ```
 cp .env.tmpl .env
 ```
-Update the values here to switch LLM backends. Currently supported backends are watsonx.ai or Azure. Also update the values at the bottom so the agent can interact with your cluster. Remember that if you are using a local cluster you can access your PC http://localhost:port by using http://host.docker.internal:port (docker) or http://host.containers.internal:port (podman).
+Update the values here to switch LLM backends. Supports all providers and models that are available through (LiteLLM)[https://docs.litellm.ai/docs/providers]. Also update the values at the bottom so the agent can interact with your cluster.
 
 3. Build the image.
 ```
