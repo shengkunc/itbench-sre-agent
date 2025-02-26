@@ -14,7 +14,7 @@ cd itbench-sre-agent
 ```
 cp .env.tmpl .env
 ```
-Update the values here to switch LLM backends. Supports all providers and models that are available through (LiteLLM)[https://docs.litellm.ai/docs/providers]. Also update the values at the bottom so the agent can interact with your cluster.
+Update the values here to switch LLM backends. Supports all providers and models that are available through [LiteLLM](https://docs.litellm.ai/docs/providers). Also update the values at the bottom so the agent can interact with your cluster.
 
 3. Build the image.
 ```
