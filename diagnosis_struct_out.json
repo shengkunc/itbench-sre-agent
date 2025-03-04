@@ -1,0 +1,46 @@
+{
+  "entities": [
+    {
+      "id": "65e01b4db8514c92",
+      "root_cause": true
+    },
+    {
+      "id": "18764da82b165f12",
+      "root_cause": false
+    },
+    {
+      "id": "df9dac0216e0bc63",
+      "root_cause": false
+    },
+    {
+      "id": "fb457a6ff852d84d",
+      "root_cause": true
+    }
+  ],
+  "propagations": [
+    {
+      "source": "65e01b4db8514c92",
+      "target": "18764da82b165f12",
+      "condition": "insufficient traffic generation",
+      "effect": "High latency"
+    },
+    {
+      "source": "65e01b4db8514c92",
+      "target": "df9dac0216e0bc63",
+      "condition": "insufficient traffic generation",
+      "effect": "High latency"
+    },
+    {
+      "source": "fb457a6ff852d84d",
+      "target": "18764da82b165f12",
+      "condition": "failure in exporting metrics and scraping data",
+      "effect": "High latency"
+    },
+    {
+      "source": "fb457a6ff852d84d",
+      "target": "df9dac0216e0bc63",
+      "condition": "failure in exporting metrics and scraping data",
+      "effect": "High latency"
+    }
+  ]
+}

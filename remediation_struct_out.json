@@ -1,0 +1,19 @@
+{
+    "remediation": [
+        [
+            { "action": "Check the current configuration of the `otel-demo-loadgenerator` to ensure it is generating sufficient traffic." },
+            { "action": "Increase the memory limit for the `otel-demo-loadgenerator` deployment to 2Gi to prevent `OOMKilled` errors." },
+            { "action": "Increase the memory request for the `otel-demo-loadgenerator` deployment to 2Gi to match the new limit." },
+            { "action": "Redeploy the updated configuration and monitor the pod status." }
+        ],
+        [
+            { "action": "Check if the Jaeger service is deployed in the environment." },
+            { "action": "If not deployed, deploy the Jaeger service." },
+            { "action": "If deployed, verify the configuration to ensure it is correctly set up to retrieve trace data." }
+        ],
+        [
+            { "action": "Check the configuration of the `otel-demo-otelcol` to ensure it is correctly exporting metrics and scraping data." },
+            { "action": "If there are misconfigurations, update the settings to ensure proper data export and scraping." }
+        ]
+    ]
+}

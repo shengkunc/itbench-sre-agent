@@ -57,8 +57,7 @@ class OpenAILLMBackend(BaseLLMBackend):
                                                          ],
                                                          seed=self.seed,
                                                          top_p=self.top_p,
-                                                         temperature=self.temperature,
-                                                         apiversion=self.api_version)
+                                                         temperature=self.temperature)
         return completion.choices[0].message.content
 
     def function_calling_inference(self,
