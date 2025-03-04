@@ -102,6 +102,10 @@ if IS_AZURE or "microsoft" in LLM_BASE_URL:
     os.environ["AZURE_API_BASE"] = LLM_BASE_URL
     os.environ["AZURE_API_VERSION"] = LLM_API_VERSION
 
+IS_ONLINE = os.getenv("IS_ONLINE", "False") == "True"
+
+assert (IS_ONLINE + IS_AZURE + IS_WATSONX) == 1, "Only one of IS_ONLINE, IS_AZURE, IS_WATSONX should be True."
+
 
 def get_llm_backend_for_agents():
     llm = None
@@ -116,6 +120,13 @@ def get_llm_backend_for_agents():
                   seed=LLM_SEED,
                   top_p=LLM_TOP_P,
                   api_key=LLM_API_KEY,
+                  temperature=LLM_TEMPERATURE)
+    elif IS_ONLINE:
+        llm = LLM(model=LLM_MODEL_NAME,
+                  base_url=LLM_BASE_URL,
+                  api_key=LLM_API_KEY,
+                  seed=LLM_SEED,
+                  top_p=LLM_TOP_P,
                   temperature=LLM_TEMPERATURE)
     else:
         llm = LLM(model= "hosted_vllm/" + LLM_MODEL_NAME,
