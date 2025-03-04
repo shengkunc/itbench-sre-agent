@@ -162,4 +162,5 @@ def get_llm_backend_for_tools():
                                 api_key=LLM_API_KEY,
                                 seed=LLM_SEED,
                                 top_p=LLM_TOP_P,
-                                temperature=LLM_TEMPERATURE)
+                                temperature=LLM_TEMPERATURE,
+                                api_version=LLM_API_VERSION)
